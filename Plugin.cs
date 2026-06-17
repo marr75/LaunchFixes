@@ -101,10 +101,8 @@ public class Plugin : BaseUnityPlugin {
             return;
         }
 
-        // Readiness via an existence count, not a nullable-reference compare: an int test
-        // can't trip the "always-false null check" inspection, finds the manager even if
-        // inactive, and matches the dumper's FindObjectsOfTypeAll fallback idiom. The dump
-        // body still resolves the singleton via .Instance.
+        // Readiness via an existence count (not a nullable compare, which trips an
+        // always-false inspection). The dump body resolves the singleton via .Instance.
         if (Resources.FindObjectsOfTypeAll<AllScriptableObjectManager>().Length == 0) {
             return; // manager not loaded yet — retry next frame
         }
@@ -115,10 +113,8 @@ public class Plugin : BaseUnityPlugin {
         VehicleStatsDumper.Dump(Log, dir);
     }
 
-    // Behind the [Diagnostics] LogCapacityCheck flag. Cheap and rate-limited: builds no
-    // string and returns immediately when the flag is off; otherwise logs only when the
-    // rounded value tuple changes or ~1s has elapsed, so CheckLV's per-frame cadence
-    // cannot spam the log.
+    // Behind the [Diagnostics] LogCapacityCheck flag. Rate-limited: returns immediately
+    // when off, else logs only when the value tuple changes or ~1s elapsed (no per-frame spam).
     internal static void LogCapacityCheck(
         double dry,
         double cargo,

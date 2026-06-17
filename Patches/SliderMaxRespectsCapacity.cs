@@ -5,13 +5,9 @@ using UnityEngine;
 
 namespace LaunchFixes.Patches;
 
-// Clamps the fuel slider's max (and thus the SetDate auto-fill at FuelSpaceCraftUI:164,
-// which sets slider.value = MaxValueSliderFuel()) to the launch vehicle's spare lift
-// capacity, so the dialog can only load fuel up to what the LV can still carry to orbit.
-// Headroom = capacity - dry - cargo: the same capacity basis and guards as the
-// CapacityIncludesPropellant gate, so the slider's reachable fuel is exactly the range
-// the gate allows (gate refuses iff fuel > headroom). Clamped into [0, original max]:
-// never raises the stock max, never goes negative.
+// Clamps the fuel slider's max (and its SetDate auto-fill, FuelSpaceCraftUI:164) to the LV's
+// spare lift: headroom = capacity - dry - cargo, same basis as the CheckLV gate.
+// Clamped into [0, stock max] — never raises the stock max, never negative.
 [HarmonyPatch(typeof(PMMissionParameter), nameof(PMMissionParameter.MaxValueSliderFuel))]
 static class SliderMaxRespectsCapacity {
     [HarmonyPostfix]
@@ -32,8 +28,7 @@ static class SliderMaxRespectsCapacity {
                 return;
             }
 
-            // Same capacity basis as CapacityIncludesPropellant. Fuel headroom is what
-            // remains after dry hull and cargo are charged against lift capacity.
+            // Headroom = lift capacity minus dry hull and cargo.
             var capacity = lv.GetLaunchVehicleType().MaxPayloadOnThisObject(__instance.Start, __instance.FlyCompany)
                 * __instance.LVCount;
             var dryMass = (double)sc.GetMass() * __instance.SCCount;
