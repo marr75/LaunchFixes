@@ -52,7 +52,8 @@ static class CapacityIncludesPropellant {
                 * __instance.LVCount;
             // payload = dry hull + cargo + loaded fuel (the craft's real ascent mass).
             var dryMass = (double)sc.GetMass() * __instance.SCCount;
-            var loadedFuel = cargo.cargoFuel.cargoMassPotencjal;
+            var maxFuel = cargo.cargoFuel.cargoMassPotencjal;
+            var currentFuel = cargo.CargoCurrentFuel;
             var payload = dryMass + cargo.CargoCurrent;
 
             var refuse = payload > capacity;
@@ -60,7 +61,8 @@ static class CapacityIncludesPropellant {
             Plugin.LogCapacityCheck(
                 dryMass,
                 cargo.CargoCurrent,
-                loadedFuel,
+                maxFuel,
+                currentFuel,
                 capacity,
                 __instance.LVCount,
                 __instance.SCCount,

@@ -122,7 +122,8 @@ public class Plugin : BaseUnityPlugin {
     internal static void LogCapacityCheck(
         double dry,
         double cargo,
-        double loadedFuel,
+        double maxFuel,
+        double currentFuel,
         double capacity,
         int lvCount,
         int scCount,
@@ -132,7 +133,7 @@ public class Plugin : BaseUnityPlugin {
         if (!_logCapacityCheck.Value) {
             return;
         }
-        var line = $"[CapacityCheck] dry={dry:F1} cargo={cargo:F1} loadedFuel={loadedFuel:F1} "
+        var line = $"[CapacityCheck] dry={dry:F1} cargo={cargo:F1} maxFuel={maxFuel:F1} currentFuel={currentFuel:F1} "
             + $"capacity={capacity:F1} LVCount={lvCount} SCCount={scCount} "
             + $"payload={payload:F1} verdict={(refuse ? "REFUSE" : "allow")}";
         var now = Time.realtimeSinceStartup;
