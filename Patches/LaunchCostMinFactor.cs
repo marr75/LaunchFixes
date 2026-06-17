@@ -33,13 +33,19 @@ namespace LaunchFixes.Patches;
 [HarmonyPatch(typeof(PMTabSchedule), "CalculateCostStart")]
 static class LaunchCostMinFactor {
     static readonly MethodInfo LerpMethod = AccessTools.Method(
-        typeof(Mathd), nameof(Mathd.Lerp), new[] { typeof(double), typeof(double), typeof(double) });
+        typeof(Mathd),
+        nameof(Mathd.Lerp),
+        new[] { typeof(double), typeof(double), typeof(double) }
+    );
+
     static readonly MethodInfo FloorMethod = AccessTools.Method(
-        typeof(LaunchCostMinFactor), nameof(LerpWithFloor));
+        typeof(LaunchCostMinFactor),
+        nameof(LerpWithFloor)
+    );
 
     [HarmonyTranspiler]
     static IEnumerable<CodeInstruction> Transpile(IEnumerable<CodeInstruction> instructions) {
-        int swapped = 0;
+        var swapped = 0;
         foreach (var ins in instructions) {
             if (ins.Calls(LerpMethod)) {
                 // Mutate in place so any labels / exception blocks on this instruction are preserved.
@@ -52,7 +58,8 @@ static class LaunchCostMinFactor {
         if (swapped != 1) {
             Plugin.Log.LogWarning(
                 $"LaunchCostMinFactor: expected exactly 1 Mathd.Lerp call in CalculateCostStart, swapped {swapped}. "
-                + "Launch-cost min-factor may be inactive; vanilla behavior is preserved.");
+                + "Launch-cost min-factor may be inactive; vanilla behavior is preserved."
+            );
         }
     }
 
@@ -61,7 +68,7 @@ static class LaunchCostMinFactor {
     // any error (or minFactor <= 0) falls back to the exact stock Lerp(from, to, t).
     public static double LerpWithFloor(double from, double to, double t) {
         try {
-            double minF = Plugin.LaunchCostMinFactor.Value;
+            var minF = Plugin.LaunchCostMinFactor.Value;
             if (minF <= 0.0) {
                 return Mathd.Lerp(from, to, t); // vanilla — from is 0.0, byte-identical
             }

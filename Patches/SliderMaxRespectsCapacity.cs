@@ -6,9 +6,12 @@ using UnityEngine;
 namespace LaunchFixes.Patches;
 
 // Clamps the fuel slider's max (and thus the SetDate auto-fill at FuelSpaceCraftUI:164,
-// which sets slider.value = MaxValueSliderFuel()) to the launch vehicle's spare capacity,
-// so the dialog never auto-loads the tank past capacity-to-orbit. Mirrors the capacity
-// basis and guards of CapacityIncludesPropellant so the two patches agree exactly.
+// which sets slider.value = MaxValueSliderFuel()) to the launch vehicle's spare lift
+// capacity, so the dialog can only load fuel up to what the LV can still carry to orbit.
+// Headroom = capacity - dry - cargo: the same capacity basis and guards as the
+// CapacityIncludesPropellant gate, so the slider's reachable fuel is exactly the range
+// the gate allows (gate refuses iff fuel > headroom). Clamped into [0, original max]:
+// never raises the stock max, never goes negative.
 [HarmonyPatch(typeof(PMMissionParameter), nameof(PMMissionParameter.MaxValueSliderFuel))]
 static class SliderMaxRespectsCapacity {
     [HarmonyPostfix]
@@ -29,12 +32,12 @@ static class SliderMaxRespectsCapacity {
                 return;
             }
 
-            double capacity = lv.GetLaunchVehicleType()
-                                .MaxPayloadOnThisObject(__instance.Start, __instance.FlyCompany)
-                            * __instance.LVCount;
-            double headroom = capacity
-                            - (double)sc.GetMass() * __instance.SCCount
-                            - cargo.CargoCurrent;
+            // Same capacity basis as CapacityIncludesPropellant. Fuel headroom is what
+            // remains after dry hull and cargo are charged against lift capacity.
+            var capacity = lv.GetLaunchVehicleType().MaxPayloadOnThisObject(__instance.Start, __instance.FlyCompany)
+                * __instance.LVCount;
+            var dryMass = (double)sc.GetMass() * __instance.SCCount;
+            var headroom = capacity - dryMass - cargo.CargoCurrent;
 
             __result = Mathd.Clamp(headroom, 0.0, __result); // never raise the max, never negative
         } catch (Exception ex) {
