@@ -29,6 +29,12 @@
             <HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <!-- Game ScriptableObject/MonoBehaviour types (SpacecraftType, LaunchVehicleType,
+             ObjectInfo) derive from Sirenix base types; needed for base-type resolution. -->
+        <Reference Include="Sirenix.Serialization">
+            <HintPath>$(ManagedDir)\Sirenix.Serialization.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
     </ItemGroup>
 
     <Target Name="DeployToPlugins" AfterTargets="Build">
