@@ -4,9 +4,12 @@ using HarmonyLib;
 
 namespace LaunchFixes.Patches;
 
-// CheckLV gate: refuse when dry hull + cargo exceeds the LV lift capacity
-// (MaxPayloadOnThisObject x LVCount). Propellant is bounded by the slider clamp, not here;
-// strict > keeps an exactly-full load (payload == capacity) launchable.
+// CheckLV gate: refuse when the fueled stack exceeds the LV lift capacity
+// (MaxPayloadOnThisObject x LVCount). One-shot legs stay slider-bounded (propellant clamped by
+// the fuel slider, not counted here); cyclical legs have no slider, so the auto-loaded
+// arrive-empty propellant (cargoMassPotencjal) is counted against capacity. CheckLVB swaps the
+// backing fields to the B endpoint before delegating to CheckLV, so this postfix covers both legs.
+// Strict > keeps an exactly-full load (payload == capacity) launchable.
 [HarmonyPatch(typeof(PMMissionParameter), nameof(PMMissionParameter.CheckLV))]
 static class CapacityIncludesPropellant {
     [HarmonyPostfix]
@@ -22,10 +25,8 @@ static class CapacityIncludesPropellant {
                 return; // self-launch / incomplete plan — out of scope
             }
 
-            // Skip the special branches that use a different mass basis.
+            // Different mass basis / out of scope in both paths.
             if (cargo.entireAsteroid
-                || __instance.ForCyclicalMission
-                || !ReferenceEquals(__instance.Start, __instance.StartHermesCase)
                 || sc.GetTypeSpaceCraft().IsInterstellarShipOrAsteroidPullingShipFromFacility) {
                 return;
             }
@@ -34,25 +35,29 @@ static class CapacityIncludesPropellant {
                     .MaxPayloadOnThisObject(__instance.Start, __instance.FlyCompany)
                 * __instance.LVCount;
             var dryMass = (double)sc.GetMass() * __instance.SCCount;
-            var maxFuel = cargo.cargoFuel.cargoMassPotencjal;
-            var currentFuel = cargo.CargoCurrentFuel;
-            var payload = dryMass + cargo.CargoCurrent;
 
-            var refuse = payload > capacity;
+            double payload;
+            if (__instance.ForCyclicalMission) {
+                // No fuel slider on a cyclical leg: the arrive-empty load (minFuelCost, already in
+                // cargoMassPotencjal) is auto-loaded and must count against lift capacity.
+                // cargoMassPotencjal is 0 for LowOrbitContainer payloads, so this no-ops there.
+                var fuelMass = cargo.cargoFuel.cargoMassPotencjal;
+                if (!ReferenceEquals(__instance.Start, __instance.StartHermesCase)) {
+                    // Hermes leg starts from an intermediate orbit: fuel already staged there
+                    // isn't lifted by this LV, so it must not count against capacity.
+                    var staged = __instance.StartHermesCaseDataCheckResources
+                        .CheckResourcesInterface(__instance.FuelNeedToStart);
+                    fuelMass = Math.Max(0.0, fuelMass - staged);
+                }
+                payload = dryMass + cargo.CargoCurrent + fuelMass;
+            } else {
+                if (!ReferenceEquals(__instance.Start, __instance.StartHermesCase)) {
+                    return; // one-shot non-Hermes basis handled elsewhere — unchanged
+                }
+                payload = dryMass + cargo.CargoCurrent; // one-shot: slider clamps fuel
+            }
 
-            Plugin.LogCapacityCheck(
-                dryMass,
-                cargo.CargoCurrent,
-                maxFuel,
-                currentFuel,
-                capacity,
-                __instance.LVCount,
-                __instance.SCCount,
-                payload,
-                refuse
-            );
-
-            if (refuse) {
+            if (payload > capacity) {
                 __result = false;
             }
         } catch (Exception ex) {

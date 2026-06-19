@@ -18,13 +18,6 @@ public class Plugin : BaseUnityPlugin {
 
     // Live-read by the LaunchVehicleBearsLaunch postfix. false = byte-identical vanilla.
     internal static ConfigEntry<bool> LaunchVehicleBearsLaunch = null!;
-    static ConfigEntry<bool> _logCapacityCheck = null!;
-
-    // Rate-limit guard for LogCapacityCheck: CheckLV runs every frame, so only emit
-    // when the rounded value tuple changes (and never more than ~once/sec).
-    static string _lastCapacityLog = "";
-    static float _lastCapacityLogTime;
-
     bool _autoDumped;
     bool _firstUpdateLogged;
     ConfigEntry<KeyboardShortcut> _dumpHotkey = null!;
@@ -68,15 +61,6 @@ public class Plugin : BaseUnityPlugin {
             new KeyboardShortcut(KeyCode.L, KeyCode.LeftControl, KeyCode.LeftShift),
             "Ctrl+Shift+L: dump launch vehicle stats on demand (works regardless of DumpVehicleStats). "
             + "Avoids F8, which the game reserves for its built-in bug-report button."
-        );
-
-        _logCapacityCheck = Config.Bind(
-            "Diagnostics",
-            "LogCapacityCheck",
-            false,
-            "When true, logs the launch-vehicle capacity-gate terms (dry, cargo, loaded fuel, capacity, "
-            + "LVCount, SCCount, payload, verdict) from the CheckLV postfix. Rate-limited: logs only when "
-            + "the rounded values change, at most about once per second — never per-frame spam."
         );
 
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded.");
@@ -136,31 +120,4 @@ public class Plugin : BaseUnityPlugin {
         VehicleStatsDumper.Dump(Log, dir);
     }
 
-    // Behind the [Diagnostics] LogCapacityCheck flag. Rate-limited: returns immediately
-    // when off, else logs only when the value tuple changes or ~1s elapsed (no per-frame spam).
-    internal static void LogCapacityCheck(
-        double dry,
-        double cargo,
-        double maxFuel,
-        double currentFuel,
-        double capacity,
-        int lvCount,
-        int scCount,
-        double payload,
-        bool refuse
-    ) {
-        if (!_logCapacityCheck.Value) {
-            return;
-        }
-        var line = $"[CapacityCheck] dry={dry:F1} cargo={cargo:F1} maxFuel={maxFuel:F1} currentFuel={currentFuel:F1} "
-            + $"capacity={capacity:F1} LVCount={lvCount} SCCount={scCount} "
-            + $"payload={payload:F1} verdict={(refuse ? "REFUSE" : "allow")}";
-        var now = Time.realtimeSinceStartup;
-        if (line == _lastCapacityLog && now - _lastCapacityLogTime < 1f) {
-            return;
-        }
-        _lastCapacityLog = line;
-        _lastCapacityLogTime = now;
-        Log.LogInfo(line);
-    }
 }
