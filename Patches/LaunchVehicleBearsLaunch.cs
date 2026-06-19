@@ -13,6 +13,9 @@ static class LaunchVehicleBearsLaunch {
         ref double leftOverFuel,
         ref double _flightCost
     ) {
+        if (!Plugin.LaunchVehicleBearsLaunch.Value) {
+            return; // gated off — byte-identical vanilla (no field writes, no __result change)
+        }
         try {
             var p = __instance.PlanMissionWindow.PMMissionParameter;
             if (p.LV == null) {

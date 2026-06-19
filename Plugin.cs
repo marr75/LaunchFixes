@@ -15,6 +15,9 @@ public class Plugin : BaseUnityPlugin {
 
     // Live-read by the LaunchCostMinFactor transpiler helper. Clamped to [0,1] on read.
     internal static ConfigEntry<double> LaunchCostMinFactor = null!;
+
+    // Live-read by the LaunchVehicleBearsLaunch postfix. false = byte-identical vanilla.
+    internal static ConfigEntry<bool> LaunchVehicleBearsLaunch = null!;
     static ConfigEntry<bool> _logCapacityCheck = null!;
 
     // Rate-limit guard for LogCapacityCheck: CheckLV runs every frame, so only emit
@@ -42,6 +45,16 @@ public class Plugin : BaseUnityPlugin {
             + "in-game takes effect without a rebuild."
         );
 
+        LaunchVehicleBearsLaunch = Config.Bind(
+            "Balance",
+            "LaunchVehicleBearsLaunch",
+            true,
+            "When true, a launch vehicle bears the craft's launch burn: the SC keeps its full fuel "
+            + "load and the LV is billed for the ascent. false = vanilla (the postfix early-returns, "
+            + "no field writes), so the cyclical path is uncontaminated. Read live, so toggling takes "
+            + "effect without a rebuild."
+        );
+
         _dumpVehicleStats = Config.Bind(
             "Diagnostics",
             "DumpVehicleStats",
@@ -67,7 +80,17 @@ public class Plugin : BaseUnityPlugin {
         );
 
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded.");
-        new Harmony(MyPluginInfo.PLUGIN_GUID).PatchAll();
+        var harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
+        harmony.PatchAll();
+
+        // Throwaway [CYCDIAG] instrumentation: one-time self-diagnosis banner (attached-or-not signal).
+        if (CycDiag.Enabled) {
+            var patched = 0;
+            try { patched = new System.Collections.Generic.List<System.Reflection.MethodBase>(harmony.GetPatchedMethods()).Count; } catch { /* count is best-effort */ }
+            CycDiag.Log($"loaded, Enabled={CycDiag.Enabled}, patchedMethods={patched}, "
+                + $"LaunchCostMinFactor={LaunchCostMinFactor.Value}, "
+                + $"LaunchVehicleBearsLaunch={LaunchVehicleBearsLaunch.Value}");
+        }
     }
 
     void Update() {
