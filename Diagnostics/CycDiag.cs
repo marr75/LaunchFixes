@@ -5,7 +5,7 @@ namespace LaunchFixes.Diagnostics;
 static class CycDiag {
     // Single master toggle for the whole diagnostic set. Flip to false to disable every log call.
     // static readonly (not const) so the always-true guards don't trip CS0162 unreachable-code.
-    internal static readonly bool Enabled = true;
+    internal static readonly bool Enabled = false;
 
     const string Tag = "[CYCDIAG]";
 
