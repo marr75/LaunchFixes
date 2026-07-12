@@ -17,9 +17,7 @@ static class DiagCalculateCostStart {
         bool launchCostZero,
         double __result
     ) {
-        if (!CycDiag.Enabled) {
-            return;
-        }
+        if (!CycDiag.Enabled) { return; }
         try {
             CycDiag.FirstHit("DiagCalculateCostStart");
             var p = __instance.PlanMissionWindow.PMMissionParameter;
@@ -35,8 +33,7 @@ static class DiagCalculateCostStart {
                 + $"|{CycDiag.R(massBase)}|{CycDiag.R(cargoPot)}";
 
             CycDiag.Throttled("DiagCalculateCostStart", sig, line);
-        } catch (Exception ex) {
-            CycDiag.Log($"DiagCalculateCostStart postfix failed: {ex.Message}");
         }
+        catch (Exception ex) { CycDiag.Log($"DiagCalculateCostStart postfix failed: {ex.Message}"); }
     }
 }

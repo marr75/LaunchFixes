@@ -16,15 +16,11 @@ namespace LaunchFixes.Patches;
 static class DiagPlanFlyCode {
     [HarmonyPostfix]
     static void Postfix(PMMissionParameter missionParameter) {
-        if (!CycDiag.Enabled) {
-            return;
-        }
+        if (!CycDiag.Enabled) { return; }
         try {
             CycDiag.FirstHit("DiagPlanFlyCode");
             var p = missionParameter;
-            if (p == null) {
-                return;
-            }
+            if (p == null) { return; }
             var cargoPot = p.CargoAll?.cargoFuel?.cargoMassPotencjal ?? -1.0;
 
             var line = $"PlanFlyCode | {CycDiag.Context(p)} "
@@ -38,8 +34,7 @@ static class DiagPlanFlyCode {
                 + $"|{CycDiag.R(p.AllFuelNeedLV)}|{CycDiag.R(p.AllFuelNeed)}|{CycDiag.R(p.FlightCost)}";
 
             CycDiag.Event("DiagPlanFlyCode", sig, line);
-        } catch (Exception ex) {
-            CycDiag.Log($"DiagPlanFlyCode postfix failed: {ex.Message}");
         }
+        catch (Exception ex) { CycDiag.Log($"DiagPlanFlyCode postfix failed: {ex.Message}"); }
     }
 }

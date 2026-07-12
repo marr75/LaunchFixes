@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
@@ -19,10 +22,10 @@ public class Plugin : BaseUnityPlugin {
     // Live-read by the LaunchVehicleBearsLaunch postfix. false = byte-identical vanilla.
     internal static ConfigEntry<bool> LaunchVehicleBearsLaunch = null!;
     bool _autoDumped;
-    bool _firstUpdateLogged;
     ConfigEntry<KeyboardShortcut> _dumpHotkey = null!;
 
     ConfigEntry<bool> _dumpVehicleStats = null!;
+    bool _firstUpdateLogged;
 
     void Awake() {
         Log = Logger;
@@ -70,10 +73,15 @@ public class Plugin : BaseUnityPlugin {
         // Throwaway [CYCDIAG] instrumentation: one-time self-diagnosis banner (attached-or-not signal).
         if (CycDiag.Enabled) {
             var patched = 0;
-            try { patched = new System.Collections.Generic.List<System.Reflection.MethodBase>(harmony.GetPatchedMethods()).Count; } catch { /* count is best-effort */ }
-            CycDiag.Log($"loaded, Enabled={CycDiag.Enabled}, patchedMethods={patched}, "
+            try { patched = new List<MethodBase>(harmony.GetPatchedMethods()).Count; }
+            catch {
+                /* count is best-effort */
+            }
+            CycDiag.Log(
+                $"loaded, Enabled={CycDiag.Enabled}, patchedMethods={patched}, "
                 + $"LaunchCostMinFactor={LaunchCostMinFactor.Value}, "
-                + $"LaunchVehicleBearsLaunch={LaunchVehicleBearsLaunch.Value}");
+                + $"LaunchVehicleBearsLaunch={LaunchVehicleBearsLaunch.Value}"
+            );
         }
     }
 
@@ -85,16 +93,13 @@ public class Plugin : BaseUnityPlugin {
         }
 
         bool hotkeyPressed;
-        try {
-            hotkeyPressed = _dumpHotkey.Value.IsDown();
-        } catch (System.Exception ex) {
+        try { hotkeyPressed = _dumpHotkey.Value.IsDown(); }
+        catch (Exception ex) {
             Log.LogError($"DumpHotkey poll failed: {ex.Message}");
             hotkeyPressed = false;
         }
 
-        if (!_dumpVehicleStats.Value && !hotkeyPressed) {
-            return;
-        }
+        if (!_dumpVehicleStats.Value && !hotkeyPressed) { return; }
 
         if (hotkeyPressed) {
             Log.LogInfo("Dump hotkey pressed — attempting on-demand dump.");
@@ -104,9 +109,7 @@ public class Plugin : BaseUnityPlugin {
         }
 
         // Auto one-shot: wait until the singleton resolves, then dump once.
-        if (_autoDumped) {
-            return;
-        }
+        if (_autoDumped) { return; }
 
         // Readiness via an existence count (not a nullable compare, which trips an
         // always-false inspection). The dump body resolves the singleton via .Instance.
@@ -119,5 +122,4 @@ public class Plugin : BaseUnityPlugin {
         var dir = Path.GetDirectoryName(Info.Location)!;
         VehicleStatsDumper.Dump(Log, dir);
     }
-
 }

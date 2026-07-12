@@ -16,9 +16,7 @@ namespace LaunchFixes.Patches;
 static class DiagCyclicalCommit {
     [HarmonyPostfix]
     static void Postfix(PMTabSchedule __instance) {
-        if (!CycDiag.Enabled) {
-            return;
-        }
+        if (!CycDiag.Enabled) { return; }
         try {
             CycDiag.FirstHit("DiagCyclicalCommit");
             var p = __instance.PlanMissionWindow.PMMissionParameter;
@@ -35,8 +33,7 @@ static class DiagCyclicalCommit {
                 + $"|{CycDiag.R(p.AllFuelNeedLV)}|{CycDiag.R(p.AllFuelNeed)}|{CycDiag.R(p.FlightCost)}";
 
             CycDiag.Event("DiagCyclicalCommit", sig, line);
-        } catch (Exception ex) {
-            CycDiag.Log($"DiagCyclicalCommit postfix failed: {ex.Message}");
         }
+        catch (Exception ex) { CycDiag.Log($"DiagCyclicalCommit postfix failed: {ex.Message}"); }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using Game.UI.Windows.Elements.PlanMissionElements;
 using Game.UI.Windows.Elements.PlanMissionElements.PMScheduleElements;
 using HarmonyLib;
 
@@ -23,9 +22,7 @@ static class SliderClampsLoadedFuel {
             if (cargo.entireAsteroid
                 || p.ForCyclicalMission
                 || !ReferenceEquals(p.Start, p.StartHermesCase)
-                || sc.GetTypeSpaceCraft().IsInterstellarShipOrAsteroidPullingShipFromFacility) {
-                return;
-            }
+                || sc.GetTypeSpaceCraft().IsInterstellarShipOrAsteroidPullingShipFromFacility) { return; }
 
             var capacity = lv.GetLaunchVehicleType().MaxPayloadOnThisObject(p.Start, p.FlyCompany)
                 * p.LVCount;
@@ -33,10 +30,9 @@ static class SliderClampsLoadedFuel {
             var headroom = capacity - dryMass - cargo.CargoCurrent;
 
             // Clamp downward only — never raise the slider, never negative.
-            if (headroom >= 0.0 && arg0 > Math.Floor(headroom)) {
-                arg0 = (float)Math.Floor(headroom);
-            }
-        } catch (Exception ex) {
+            if (headroom >= 0.0 && arg0 > Math.Floor(headroom)) { arg0 = (float)Math.Floor(headroom); }
+        }
+        catch (Exception ex) {
             Plugin.Log.LogError($"SliderClampsLoadedFuel prefix failed: {ex}");
             // fail open — leave arg0 untouched so the loadout UI never breaks
         }

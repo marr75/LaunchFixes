@@ -53,11 +53,10 @@ static class LaunchCostMinFactor {
             if (minF <= 0.0) {
                 return Mathd.Lerp(from, to, t); // vanilla — from is 0.0, byte-identical
             }
-            if (minF > 1.0) {
-                minF = 1.0;
-            }
+            if (minF > 1.0) { minF = 1.0; }
             return Mathd.Lerp(minF * to, to, t);
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             Plugin.Log.LogError($"LaunchCostMinFactor.LerpWithFloor failed: {ex}");
             return Mathd.Lerp(from, to, t); // fall back to stock
         }

@@ -52,7 +52,8 @@ static class VehicleStatsDumper {
 
             foreach (var lv in list) {
                 string name;
-                try { name = lv.Name; } catch { name = lv.ID; }
+                try { name = lv.Name; }
+                catch { name = lv.ID; }
 
                 var row =
                     $"{lv.ID,-40} {name,-28} {lv.maxPayload,10:F1} {lv.maxFuelLoad,10:F1} {lv.costLaunch,12:F1} {lv.exhaustV,10:F2} {lv.reusability,7:F3}";
@@ -67,8 +68,7 @@ static class VehicleStatsDumper {
             var outPath = Path.Combine(pluginDir, "lv-stats-dump.txt");
             File.WriteAllText(outPath, sb.ToString());
             log.LogInfo($"[VehicleStatsDumper] Written to {outPath}");
-        } catch (Exception ex) {
-            log.LogError($"[VehicleStatsDumper] Dump failed: {ex}");
         }
+        catch (Exception ex) { log.LogError($"[VehicleStatsDumper] Dump failed: {ex}"); }
     }
 }

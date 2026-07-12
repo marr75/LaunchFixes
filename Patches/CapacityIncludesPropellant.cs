@@ -27,9 +27,7 @@ static class CapacityIncludesPropellant {
 
             // Different mass basis / out of scope in both paths.
             if (cargo.entireAsteroid
-                || sc.GetTypeSpaceCraft().IsInterstellarShipOrAsteroidPullingShipFromFacility) {
-                return;
-            }
+                || sc.GetTypeSpaceCraft().IsInterstellarShipOrAsteroidPullingShipFromFacility) { return; }
 
             var capacity = lv.GetLaunchVehicleType()
                     .MaxPayloadOnThisObject(__instance.Start, __instance.FlyCompany)
@@ -50,17 +48,17 @@ static class CapacityIncludesPropellant {
                     fuelMass = Math.Max(0.0, fuelMass - staged);
                 }
                 payload = dryMass + cargo.CargoCurrent + fuelMass;
-            } else {
+            }
+            else {
                 if (!ReferenceEquals(__instance.Start, __instance.StartHermesCase)) {
                     return; // one-shot non-Hermes basis handled elsewhere — unchanged
                 }
                 payload = dryMass + cargo.CargoCurrent; // one-shot: slider clamps fuel
             }
 
-            if (payload > capacity) {
-                __result = false;
-            }
-        } catch (Exception ex) {
+            if (payload > capacity) { __result = false; }
+        }
+        catch (Exception ex) {
             Plugin.Log.LogError($"CapacityIncludesPropellant postfix failed: {ex}");
             // fail open — never block launch on a patch error
         }

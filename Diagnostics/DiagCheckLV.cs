@@ -13,9 +13,7 @@ namespace LaunchFixes.Patches;
 static class DiagCheckLV {
     [HarmonyPostfix]
     static void Postfix(PMMissionParameter __instance, bool __result) {
-        if (!CycDiag.Enabled) {
-            return;
-        }
+        if (!CycDiag.Enabled) { return; }
         try {
             CycDiag.FirstHit("DiagCheckLV");
             var p = __instance;
@@ -27,14 +25,15 @@ static class DiagCheckLV {
                     capacity = lv.GetLaunchVehicleType().MaxPayloadOnThisObject(p.Start, p.FlyCompany)
                         * p.LVCount;
                 }
-                if (sc != null) {
-                    dry = (double)sc.GetMass() * p.SCCount;
-                }
+                if (sc != null) { dry = (double)sc.GetMass() * p.SCCount; }
                 if (p.CargoAll != null) {
                     cargo = p.CargoAll.CargoCurrent;
                     loadedFuel = p.CargoAll.cargoFuel.cargoMassPotencjal;
                 }
-            } catch { /* leave sentinels; geometry may not expose Start/LV this tick */ }
+            }
+            catch {
+                /* leave sentinels; geometry may not expose Start/LV this tick */
+            }
 
             // required = cargo (the gate basis); the gate ignores dry+loadedFuel, which is the point.
             var line = $"CheckLV | {CycDiag.Context(p)} "
@@ -47,8 +46,7 @@ static class DiagCheckLV {
                 + $"|{CycDiag.R(dry)}|{CycDiag.R(loadedFuel)}";
 
             CycDiag.Throttled("DiagCheckLV", sig, line);
-        } catch (Exception ex) {
-            CycDiag.Log($"DiagCheckLV postfix failed: {ex.Message}");
         }
+        catch (Exception ex) { CycDiag.Log($"DiagCheckLV postfix failed: {ex.Message}"); }
     }
 }

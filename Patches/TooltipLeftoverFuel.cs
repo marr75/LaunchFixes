@@ -16,7 +16,8 @@ static class TooltipLeftoverFuel {
         [HarmonyPrefix]
         static void Prefix(PMTabSchedule __instance) {
             try {
-                if (PMTabSchedule.calculateCostInFuelRecurentOn) { // skip recursive re-entry
+                if (PMTabSchedule.calculateCostInFuelRecurentOn) {
+                    // skip recursive re-entry
                     return;
                 }
                 var p = __instance.PlanMissionWindow.PMMissionParameter;
@@ -26,7 +27,8 @@ static class TooltipLeftoverFuel {
                 }
                 _owner = __instance;
                 _loadedFuel = p.CargoAll.cargoFuel.cargoMassPotencjal;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Plugin.Log.LogError($"TooltipLeftoverFuel capture prefix failed: {ex}");
                 _owner = null;
             }
@@ -46,7 +48,8 @@ static class TooltipLeftoverFuel {
                     return; // self-launch — stock behavior
                 }
                 leftOverFuel = _loadedFuel;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Plugin.Log.LogError($"TooltipLeftoverFuel override prefix failed: {ex}");
                 // fail open — leave leftOverFuel untouched
             }

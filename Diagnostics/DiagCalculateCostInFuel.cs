@@ -18,9 +18,7 @@ static class DiagCalculateCostInFuel {
         ref double minFuelCost,
         ref double _flightCost
     ) {
-        if (!CycDiag.Enabled) {
-            return;
-        }
+        if (!CycDiag.Enabled) { return; }
         try {
             CycDiag.FirstHit("DiagCalculateCostInFuel");
             var p = __instance.PlanMissionWindow.PMMissionParameter;
@@ -38,8 +36,7 @@ static class DiagCalculateCostInFuel {
                 + $"|{CycDiag.R(costStart)}|{CycDiag.R(_flightCost)}|{CycDiag.R(__result)}";
 
             CycDiag.Throttled("DiagCalculateCostInFuel", sig, line);
-        } catch (Exception ex) {
-            CycDiag.Log($"DiagCalculateCostInFuel postfix failed: {ex.Message}");
         }
+        catch (Exception ex) { CycDiag.Log($"DiagCalculateCostInFuel postfix failed: {ex.Message}"); }
     }
 }
