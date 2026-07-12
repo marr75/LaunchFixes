@@ -5,7 +5,7 @@
     <AssemblyName>LaunchFixes</AssemblyName>
     <Product>LaunchFixes</Product>
     <Version>0.1.0</Version>
-    <BepInExPluginGuid>matt.solarexpanse.launchfixes</BepInExPluginGuid>
+    <BepInExPluginGuid>marr75.solarexpanse.launchfixes</BepInExPluginGuid>
   </PropertyGroup>
 
   <ItemGroup>
