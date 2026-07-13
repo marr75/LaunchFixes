@@ -21,7 +21,7 @@ Vanilla: an almost-empty launch vehicle launches for next to nothing, and the ca
 Settings live in `BepInEx/config/marr75.solarexpanse.launchfixes.cfg` and are also editable in-game if you have Configuration Manager installed. The two worth knowing about:
 
 - **`LaunchVehicleBearsLaunch`** (default: on) — the launch vehicle pays for your craft's launch burn instead of the craft itself. Turn it off to go back to vanilla's behavior.
-- **`LaunchCostMinFactor`** (default: `0`, i.e. off) — how expensive a *nearly empty* launch vehicle launch is, as a fraction of a *full* launch's cost. `0` is vanilla (can trend toward free); `1` means a near-empty launch costs the same as a full one. Try something like `0.2`–`0.4` if you want near-empty launches to cost *something* without being as expensive as a full load.
+- **`LaunchCostMinFactor`** (default: `0`, i.e. off) — how expensive a _nearly empty_ launch vehicle launch is, as a fraction of a _full_ launch's cost. `0` is vanilla (can trend toward free); `1` means a near-empty launch costs the same as a full one. Try something like `0.2`–`0.4` if you want near-empty launches to cost _something_ without being as expensive as a full load.
 
 Everything under the `Diagnostics` section (`DumpVehicleStats`, `DumpHotkey`) is a developer tool for dumping launch-vehicle stats to a file — safe to ignore as a player.
 
