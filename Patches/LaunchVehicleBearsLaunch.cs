@@ -1,6 +1,7 @@
 using System;
 using Game.UI.Windows.Elements.PlanMissionElements;
 using HarmonyLib;
+using LaunchFixes.Core;
 
 namespace LaunchFixes.Patches;
 
@@ -13,7 +14,7 @@ static class LaunchVehicleBearsLaunch {
         ref double leftOverFuel,
         ref double _flightCost
     ) {
-        if (!Plugin.LaunchVehicleBearsLaunch.Value) {
+        if (!Services.Config.LaunchVehiclePaysForAscent.Value) {
             return; // gated off — byte-identical vanilla (no field writes, no __result change)
         }
         try {

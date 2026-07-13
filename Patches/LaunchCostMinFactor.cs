@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Game.UI.Windows.Elements.PlanMissionElements;
 using HarmonyLib;
+using LaunchFixes.Core;
 using UnityEngine;
 
 namespace LaunchFixes.Patches;
@@ -49,7 +50,7 @@ static class LaunchCostMinFactor {
     // Fail-open — minFactor <= 0 or any error returns the exact stock Lerp(from, to, t).
     public static double LerpWithFloor(double from, double to, double t) {
         try {
-            var minF = Plugin.LaunchCostMinFactor.Value;
+            var minF = Services.Config.NearEmptyLaunchCostFloor.Value;
             if (minF <= 0.0) {
                 return Mathd.Lerp(from, to, t); // vanilla — from is 0.0, byte-identical
             }
