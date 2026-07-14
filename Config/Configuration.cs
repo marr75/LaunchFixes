@@ -17,7 +17,7 @@ sealed class Configuration {
         NearEmptyLaunchCostFloor = c.Bind(
             "Balance",
             "NearEmptyLaunchCostFloor",
-            0.0,
+            0.1,
             new ConfigDescription(
                 nearEmptyLaunchCostFloorDescription,
                 new AcceptableValueRange<double>(0.0, 1.0)
