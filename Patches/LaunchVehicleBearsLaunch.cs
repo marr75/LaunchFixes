@@ -29,7 +29,8 @@ static class LaunchVehicleBearsLaunch {
             _flightCost = 0.0; // no SC launch burn
             leftOverFuel = loaded; // craft arrives with its full load → :1251 fills the tank
             __result = loaded; // fuelNeed stays L: planet fills the tank, total billed = costLv + L
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             Plugin.Log.LogError($"LaunchVehicleBearsLaunch postfix failed: {ex}");
             // fall back to stock behavior
         }

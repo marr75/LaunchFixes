@@ -5,6 +5,8 @@ using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using LaunchFixes.Config;
+using LaunchFixes.Core;
 using LaunchFixes.Diagnostics;
 using Manager;
 using UnityEngine;
@@ -19,7 +21,7 @@ public class Plugin : BaseUnityPlugin {
 
     void Awake() {
         Log = Logger;
-        Core.Services.Init(new Config.Configuration(Config)); // must precede patching: patches read Services.Config
+        Services.Init(new Configuration(Config)); // must precede patching: patches read Services.Config
 
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded.");
         var harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
@@ -34,8 +36,8 @@ public class Plugin : BaseUnityPlugin {
             }
             CycDiag.Log(
                 $"loaded, Enabled={CycDiag.Enabled}, patchedMethods={patched}, "
-                + $"NearEmptyLaunchCostFloor={Core.Services.Config.NearEmptyLaunchCostFloor.Value}, "
-                + $"LaunchVehiclePaysForAscent={Core.Services.Config.LaunchVehiclePaysForAscent.Value}"
+                + $"NearEmptyLaunchCostFloor={Services.Config.NearEmptyLaunchCostFloor.Value}, "
+                + $"LaunchVehiclePaysForAscent={Services.Config.LaunchVehiclePaysForAscent.Value}"
             );
         }
     }
@@ -48,13 +50,13 @@ public class Plugin : BaseUnityPlugin {
         }
 
         bool hotkeyPressed;
-        try { hotkeyPressed = Core.Services.Config.DumpVehicleStatsHotkey.Value.IsDown(); }
+        try { hotkeyPressed = Services.Config.DumpVehicleStatsHotkey.Value.IsDown(); }
         catch (Exception ex) {
             Log.LogError($"DumpVehicleStatsHotkey poll failed: {ex.Message}");
             hotkeyPressed = false;
         }
 
-        if (!Core.Services.Config.AutoDumpVehicleStatsOnLoad.Value && !hotkeyPressed) { return; }
+        if (!Services.Config.AutoDumpVehicleStatsOnLoad.Value && !hotkeyPressed) { return; }
 
         if (hotkeyPressed) {
             Log.LogInfo("Dump hotkey pressed — attempting on-demand dump.");
