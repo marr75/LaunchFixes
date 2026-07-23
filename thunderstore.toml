@@ -1,0 +1,29 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "marr75"
+name = "LaunchFixes"
+versionNumber = "0.0.0"
+description = "Launch vehicles finally pay their fair share: capacity, fuel, and cost all add up the way you'd expect."
+websiteUrl = "https://github.com/marr75/LaunchFixes"
+containsNsfwContent = false
+
+[package.dependencies]
+BepInEx-BepInExPack = "5.4.2100" # TODO(verify): confirm exact Thunderstore dependency string + version
+
+[build]
+icon = "./icon.png"
+readme = "./README.md"
+outdir = "./artifacts/thunderstore"
+
+[[build.copy]]
+source = "./staging/BepInEx/plugins/LaunchFixes/"
+target = "./BepInEx/plugins/LaunchFixes/"
+
+[publish]
+repository = "https://thunderstore.io"
+communities = ["solar-expanse"] # TODO(pending ecosystem-schema PR): confirm community slug
+
+[publish.categories]
+solar-expanse = ["mods"]
